@@ -2,8 +2,8 @@ name: CI for python
 on:
   pull_request:
     branches:
-      - 'feat/**'
-      - 'fix/**'
+      - 'master'
+      - 'dev'
     paths:
       - '**.py'
       - '**/**/Dockerfile'
