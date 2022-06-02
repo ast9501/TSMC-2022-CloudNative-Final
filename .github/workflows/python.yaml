@@ -18,6 +18,7 @@ on:
 env:
   # Define path for projects
   CRAWLER_BASE_PATH: crawler
+  MATH_BASE_PATH: math
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -48,6 +49,10 @@ jobs:
         if: steps.filter.outputs.crawler == 'true'
         run: |
           echo "work_path=$CRAWLER_BASE_PATH" >> $GITHUB_ENV
+      - name: check math source code
+        if: steps.filter.outputs.math == 'true'
+        run: |
+          echo "work_path=$MATH_BASE_PATH" >> $GITHUB_ENV
       - name: Install dependencies
         working-directory: ./${{ env.work_path }}
         run: |
