@@ -1,5 +1,9 @@
 name: CI for python
 on:
+  push:
+    branches:
+      - 'master'
+      - 'dev'
   pull_request:
     branches:
       - 'master'
