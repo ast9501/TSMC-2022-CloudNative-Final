@@ -40,24 +40,26 @@ jobs:
         id: filter
         with:
           filters: |
+            config:
+              - '**.yaml'
             crawler:
               - 'crawler/**'
       - name: Set changed status if code changed
-        if: steps.filter.outputs.crawler == 'true'
+        if: steps.filter.outputs.crawler == 'true' || steps.filter.outputs.config == 'true'
         run: |
-          echo "changed_status=true" >> $GITHUB_ENV
+          echo "crawler_changed_status=true" >> $GITHUB_ENV
       - name: Set changed status if code did not changed
-        if: steps.filter.outputs.crawler == 'false'
+        if: steps.filter.outputs.crawler == 'false' && steps.filter.outputs.config == 'false'
         run: |
-          echo "changed_status=false" >> $GITHUB_ENV
+          echo "crawler_changed_status=false" >> $GITHUB_ENV
       - name: Install dependencies
-        if: steps.filter.outputs.crawler == 'true'
+        if: ${{ env.crawler_changed_status }} == 'true'
         working-directory: ./${{ env.CRAWLER_BASE_PATH }}
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt          
       - name: Run unit tests
-        if: steps.filter.outputs.crawler == 'true'
+        if: ${{ env.crawler_changed_status }} == 'true'
         id: unitTest
         working-directory: ./${{ env.CRAWLER_BASE_PATH }}
         run: |
@@ -66,7 +68,7 @@ jobs:
           pytest -v --junitxml="results.xml"
       - name: Label changed status
         id: labelStatus
-        run: echo "::set-output name=changed::${{ env.changed_status }}"
+        run: echo "::set-output name=changed::${{ env.crawler_changed_status }}"
   crawler-build:
     needs: crawler-test
     runs-on: ubuntu-latest
@@ -110,24 +112,26 @@ jobs:
         id: filter
         with:
           filters: |
+            config:
+              - '**.yaml'
             math:
               - 'math/**'
       - name: Set changed status if code changed
-        if: steps.filter.outputs.math == 'true'
+        if: steps.filter.outputs.math == 'true' || steps.filter.outputs.config == 'true'
         run: |
-          echo "changed_status=true" >> $GITHUB_ENV
+          echo "math_changed_status=true" >> $GITHUB_ENV
       - name: Set changed status if code did not changed
-        if: steps.filter.outputs.math == 'false'
+        if: steps.filter.outputs.math == 'false' && steps.filter.outputs.config == 'false'
         run: |
-          echo "changed_status=false" >> $GITHUB_ENV
+          echo "math_changed_status=false" >> $GITHUB_ENV
       - name: Install dependencies
-        if: steps.filter.outputs.math == 'true'
+        if: ${{ env.changed_status }} == 'true' 
         working-directory: ./${{ env.MATH_BASE_PATH }}
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt          
       - name: Run unit tests
-        if: steps.filter.outputs.math == 'true'
+        if: ${{ env.math_changed_status }} == 'true'
         id: unitTest
         working-directory: ./${{ env.MATH_BASE_PATH }}
         run: |
@@ -136,7 +140,7 @@ jobs:
           pytest -v --junitxml="results.xml"
       - name: Label changed status
         id: labelStatus
-        run: echo "::set-output name=changed::${{ env.changed_status }}"
+        run: echo "::set-output name=changed::${{ env.math_changed_status }}"
   math-build:
     needs: math-test
     runs-on: ubuntu-latest
