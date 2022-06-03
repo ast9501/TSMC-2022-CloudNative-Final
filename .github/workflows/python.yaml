@@ -26,6 +26,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.8", "3.9"]
+    outputs:
+      target:  ${{ steps.unitTest.outputs.path }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -60,11 +62,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt          
       - name: Run unit tests
+        id: unitTest
         working-directory: ./${{ env.work_path }}
         run: |
           pip install pytest
           pip install pytest-cov
           pytest -v --junitxml="results.xml"
+          echo "::set-output name=path::${{ env.work_path }}"
   build:
     needs: test
     runs-on: ubuntu-latest
@@ -81,10 +85,10 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./${{ env.work_path }}/docker
-          file: ./${{ env.work_path }}/docker/Dockerfile
+          context: ./${{ needs.test.outputs.target }}/docker
+          file: ./${{ needs.test.outputs.target }}/docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.work_path }}:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ needs.test.outputs.target }}:latest
       #- name: Publish Test Results
       #  uses: EnricoMi/publish-unit-test-result-action/composite@v1
       #  if: always()
