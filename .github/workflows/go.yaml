@@ -1,0 +1,58 @@
+name: golang CI/CD workflow
+on:
+  push:
+    branches:
+      - 'master'
+      - 'dev'
+    paths:
+      - '**.go'
+      - '**/**/Dockerfile'
+      - '**.yaml'
+  pull_request:
+    branches:
+      - 'master'
+      - 'dev'
+    paths:
+      - '**.go'
+      - '**/**/Dockerfile'
+      - '**.yaml'
+env:
+  # Define path for projects
+  TASK_MANAGER_BASE_PATH: task-manager
+  CONTAINER_NAME: task-manager
+jobs:
+  task-manager-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        golang-version: ["1.18"]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: Set up Golang ${{ matrix.golang-version }}
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.golang-version }}          
+      - name: Run unit tests
+        working-directory: ./${{ env.TASK_MANAGER_BASE_PATH }}
+        run: go test -v ./...
+  task-manager-build:
+    needs: task-manager-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./${{ env.TASK_MANAGER_BASE_PATH }}/docker
+          file: ./${{ env.TASK_MANAGER_BASE_PATH }}/docker/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:latest

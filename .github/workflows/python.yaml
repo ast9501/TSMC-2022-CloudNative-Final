@@ -1,0 +1,94 @@
+name: python CI/CD workflow
+on:
+  push:
+    branches:
+      - 'master'
+      - 'dev'
+    paths:
+      - '**.py'
+      - '**/**/Dockerfile'
+      - '**.yaml'
+  pull_request:
+    branches:
+      - 'master'
+      - 'dev'
+    paths:
+      - '**.py'
+      - '**/**/Dockerfile'
+      - '**.yaml'
+env:
+  # Define path for projects
+  CRAWLER_BASE_PATH: crawler
+jobs:
+  crawler-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8"]
+    outputs:
+      changed:  ${{ steps.labelStatus.outputs.changed }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Changed file filter
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            config:
+              - '**.yaml'
+            crawler:
+              - 'crawler/**'
+      - name: Set changed status if code changed
+        if: steps.filter.outputs.crawler == 'true' || steps.filter.outputs.config == 'true'
+        run: |
+          echo "crawler_changed_status=true" >> $GITHUB_ENV
+      - name: Set changed status if code did not changed
+        if: steps.filter.outputs.crawler == 'false' && steps.filter.outputs.config == 'false'
+        run: |
+          echo "crawler_changed_status=false" >> $GITHUB_ENV
+      - name: Install dependencies
+        if: ${{ env.crawler_changed_status }} == 'true'
+        working-directory: ./${{ env.CRAWLER_BASE_PATH }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt          
+      - name: Run unit tests
+        if: ${{ env.crawler_changed_status }} == 'true'
+        id: unitTest
+        working-directory: ./${{ env.CRAWLER_BASE_PATH }}
+        run: |
+          pip install pytest
+          pip install pytest-cov
+          pytest -v --junitxml="results.xml"
+      - name: Label changed status
+        id: labelStatus
+        run: echo "::set-output name=changed::${{ env.crawler_changed_status }}"
+  crawler-build:
+    needs: crawler-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        if: needs.crawler-test.outputs.changed == 'true'
+        uses: actions/checkout@v3
+      - name: Login to Docker Hub
+        if: needs.crawler-test.outputs.changed == 'true'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: Set up Docker Buildx
+        if: needs.crawler-test.outputs.changed == 'true'
+        uses: docker/setup-buildx-action@v1
+      - name: Build and push
+        if: needs.crawler-test.outputs.changed == 'true'
+        uses: docker/build-push-action@v2
+        with:
+          context: ./$CRAWLER_BASE_PATH/docker
+          file: ./$CRAWLER_BASE_PATH/docker/Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/$CRAWLER_BASE_PATH:latest
