@@ -1,4 +1,4 @@
-name: CI CD for python
+name: python CI/CD workflow
 on:
   push:
     branches:
