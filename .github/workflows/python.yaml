@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9"]
+        python-version: ["3.8"]
     outputs:
       changed:  ${{ steps.labelStatus.outputs.changed }}
     steps:
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9"]
+        python-version: ["3.8"]
     outputs:
       changed:  ${{ steps.labelStatus.outputs.changed }}
     steps:
