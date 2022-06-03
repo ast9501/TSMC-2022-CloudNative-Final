@@ -26,15 +26,12 @@ jobs:
     outputs:
       changed:  ${{ steps.labelStatus.outputs.changed }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Check out repository code to PR branch
-        uses: actions/checkout@v3
-        #with:
-        #  ref: ${{ github.base_ref }}
       - name: Changed file filter
         uses: dorny/paths-filter@v2
         id: filter
