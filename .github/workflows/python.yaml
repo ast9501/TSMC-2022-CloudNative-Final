@@ -66,6 +66,7 @@ jobs:
           pip install pytest-cov
           pytest -v --junitxml="results.xml"
   build:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: checkout
