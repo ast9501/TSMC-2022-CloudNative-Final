@@ -28,8 +28,6 @@ jobs:
         python-version: ["3.8", "3.9"]
     outputs:
       changed:  ${{ steps.labelStatus.outputs.changed }}
-    env:
-      changed_status: "false"
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -46,10 +44,12 @@ jobs:
               - 'crawler/**'
       - name: Set changed status if code changed
         if: steps.filter.outputs.crawler == 'true'
-        run: echo "true" >> $changed_status
-      #- name: Set changed status if code did not changed
-      #  if: steps.filter.outputs.crawler == 'false'
-      #  run: echo "false" >> $changed_status
+        run: |
+          echo "changed_status=true" >> $GITHUB_ENV
+      - name: Set changed status if code did not changed
+        if: steps.filter.outputs.crawler == 'false'
+        run: |
+          echo "changed_status=false" >> $GITHUB_ENV
       - name: Install dependencies
         if: steps.filter.outputs.crawler == 'true'
         working-directory: ./${{ env.CRAWLER_BASE_PATH }}
@@ -98,8 +98,6 @@ jobs:
         python-version: ["3.8", "3.9"]
     outputs:
       changed:  ${{ steps.labelStatus.outputs.changed }}
-    env:
-      changed_status: "false"
     steps:
       - name: checkout
         uses: actions/checkout@v3
@@ -116,7 +114,12 @@ jobs:
               - 'math/**'
       - name: Set changed status if code changed
         if: steps.filter.outputs.math == 'true'
-        run: echo "true" >> $changed_status
+        run: |
+          echo "changed_status=true" >> $GITHUB_ENV
+      - name: Set changed status if code did not changed
+        if: steps.filter.outputs.math == 'false'
+        run: |
+          echo "changed_status=false" >> $GITHUB_ENV
       - name: Install dependencies
         if: steps.filter.outputs.math == 'true'
         working-directory: ./${{ env.MATH_BASE_PATH }}
