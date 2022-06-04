@@ -16,23 +16,36 @@ app = Flask(__name__)
 api = Api(app)
 
 class crawler(Resource):
+    def __init__(self):
+        self.crawler = GoogleCrawler()
     def get(self):
         results = self.get_resource_count()
         #print(results[0]["link"])
         return results
     def get_resource_count(self):
-        query = "TSMC ASML"
-        crawler = GoogleCrawler()
-        results = crawler.google_search(query , 'qdr:w' , '1')
-        link = results[0]["link"]
-        response = crawler.get_source(link)
-        soup = crawler.html_parser(response.text)
-        orignal_text = crawler.html_getText(soup)
-        #print(original_text[:100])
-        result_wordcount = crawler.word_count(orignal_text)
-        print(result_wordcount)
-        #print(type(json.dumps(results[0])))
+        query = "台積電"
+        result_wordcount = 0
+        for page in range(1, 11):
+            source_data = self.crawler.google_search(query , 'qdr:w' , page);
+            for data in source_data:
+                original_text = self.get_original_text(data)
+                #print(original_text)
+                wordcount = self.crawler.word_count(original_text)
+                print(wordcount)
+                if query in wordcount:
+                    #print(wordcount[query])
+                    result_wordcount += int(wordcount[query])
+                #print(result_wordcount)
+            #result_wordcount = self.crawler.word_count(original_text)
+        #print(result_wordcount)
         return result_wordcount
+    def get_original_text(self, data):
+        Target_URL = data["link"]
+        #print(Target_URL)
+        response = self.crawler.get_source(Target_URL)
+        soup = self.crawler.html_parser(response.text)
+        original_text = self.crawler.html_getText(soup)
+        return original_text 
 
 class GoogleCrawler():
     
