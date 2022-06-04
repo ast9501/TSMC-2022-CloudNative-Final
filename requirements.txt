@@ -1,0 +1,8 @@
+requests-html
+pandas
+requests
+beautifulsoup4
+nltk
+openpyxl
+flask
+flask_restful
