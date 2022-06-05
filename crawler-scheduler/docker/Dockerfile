@@ -1,14 +1,14 @@
 FROM ubuntu:jammy
 
+# Setup Crawler
+COPY ./crawler-scheduler /app/crawler-scheduler
+COPY ./rabbitmq /app/rabbitmq
+WORKDIR /app
+
 # Setup Python3
-RUN apt-get update && apt-get install -y python3 python3-pip
+RUN apt-get update && apt-get install -y python3 python3-pip cron
 
 # Setup Requirements
-RUN pip3 install -r requirements.txt
+RUN pip3 install -r ./crawler-scheduler/requirements.txt
 
-# Setup Crawler
-COPY ./crawler-scheduler ./app
-COPY ./rabbitmq ./app
-
-# Create Cron Job
-# [TODO]
+CMD [ "python3", "crawler-scheduler/src/UrlScrapper.py" ]
