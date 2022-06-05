@@ -1,24 +1,27 @@
-name: python CI/CD workflow
+name: crawler-scheduler CI workflow
 on:
   push:
     branches:
       - 'master'
       - 'dev'
     paths:
-      - '**.py'
-      - '**/**/Dockerfile'
+      - 'crawler-scheduler/**/**.py'
+      - 'crawler-scheduler/docker/Dockerfile'
+      - 'rabbitmq/**/**.py'
       - '**.yaml'
   pull_request:
     branches:
       - 'master'
       - 'dev'
     paths:
-      - '**.py'
-      - '**/**/Dockerfile'
+      - 'crawler-scheduler/**/**.py'
+      - 'crawler-scheduler/docker/Dockerfile'
+      - 'rabbitmq/**/**.py'
       - '**.yaml'
 env:
   # Define path for projects
-  CRAWLER_BASE_PATH: crawler
+  CRAWLER_BASE_PATH: crawler-scheduler
+  CONTAINER_NAME: crawler-scheduler
 jobs:
   crawler-test:
     runs-on: ubuntu-latest
@@ -91,4 +94,4 @@ jobs:
           context: ./$CRAWLER_BASE_PATH/docker
           file: ./$CRAWLER_BASE_PATH/docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/$CRAWLER_BASE_PATH:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
