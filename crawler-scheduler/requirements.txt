@@ -1,0 +1,9 @@
+beautifulsoup4==4.9.3
+certifi==2022.5.18.1
+chardet==4.0.0
+googlesearch-python==1.1.0
+idna==2.10
+pika==1.2.1
+requests==2.25.1
+soupsieve==2.3.2.post1
+urllib3==1.26.9
