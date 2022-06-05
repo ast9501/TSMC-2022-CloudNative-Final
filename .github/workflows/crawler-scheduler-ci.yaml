@@ -38,7 +38,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: ./${{ env.CRAWLER_BASE_PATH }}/docker
+          context: .
           file: ./${{ env.CRAWLER_BASE_PATH }}/docker/Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:latest
