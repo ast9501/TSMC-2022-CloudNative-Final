@@ -33,11 +33,11 @@ if __name__ == '__main__':
             'data': [],
         }
         for term in TARGET_KEYWORDS[k]:
-            for r in search(term, num_results=20):
+            for r in search(term, num_results=NUMS_OF_SEARCH_RESULT):
                 if str(r).startswith(BLACKLIST):
                     continue
-                logging.info("Retrieveing URL: %s" % r)
                 if r not in result['data']:
+                    logging.info("Retrieveing URL: %s" % r)
                     result['data'].append(r)
 
         payload.append(result)
