@@ -23,4 +23,11 @@ spec:
         imagePullPolicy: {{ $deployment.image.imagePullPolicy }}
         ports:
         - containerPort: {{ $deployment.containerPort }}
+        volumeMounts:
+          - name: {{ $deployment.pvc.name }}
+            mountPath: {{ $deployment.pvc.path }}
+      volumes:
+      - name: {{ $deployment.pvc.name }}  
+        persistentVolumeClain:
+          claimName: {{ $deployment.pvc.claimname }}  
 {{- end }}

@@ -31,3 +31,7 @@ deployments:
       tag: latest
       imagePullPolicy: Always
     containerPort: 8088
+    pvc:
+      name: history-dir
+      path: /var/log/history
+      claimname: pvc-demo
