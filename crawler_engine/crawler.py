@@ -54,6 +54,7 @@ class crawler(Resource):
         #query = "台積電"
         query = data['type']
         urls = data['url']
+        path = '/var/log/history/'
         #query = company
         print(query)
         #result_wordcount = 0
@@ -65,7 +66,8 @@ class crawler(Resource):
         word_count = self.crawler.word_count(all_text)
         #whitelist = ['ASML', 'Intel', 'TSMC']
         whitelist = [query]
-        result = self.crawler.get_wordcount_json(whitelist, word_count)        
+        result = self.crawler.get_wordcount_json(whitelist, word_count) 
+        self.crawler.jsonarray_toexcel(result, path)       
         return result
 
 
