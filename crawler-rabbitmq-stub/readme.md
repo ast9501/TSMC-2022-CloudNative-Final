@@ -1,0 +1,12 @@
+# Crawler Rabbitmq Stub
+
+## Environment Variable
+
+```TEXT
+TSMC_RABBITMQ_HOST=localhost
+TSMC_RABBITMQ_PORT=5672
+TSMC_RABBITMQ_USER=user
+TSMC_RABBITMQ_PASSWORD=password
+TSMC_CRAWLER_ENDPOINT=localhost
+TSMC_CRAWLER_PORT=8088
+```
