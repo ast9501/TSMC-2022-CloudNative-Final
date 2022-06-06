@@ -2,18 +2,9 @@
 import os
 import sys
 import logging
+from Setting import *
 
 from googlesearch import search
-
-BLACKLIST = (
-    'https://www.google.',
-    'https://google.',
-    'https://webcache.googleusercontent.',
-    'http://webcache.googleusercontent.',
-    'https://policies.google.',
-    'https://support.google.',
-    'https://maps.google.'
-)
 
 # Create RabbitMQ Connector
 if __name__ == '__main__':
@@ -34,10 +25,24 @@ if __name__ == '__main__':
     urlQueue = UrlQueue()
     urlQueue.setupUrlQueue()
 
-    for r in search("TSMC", num_results=20):
-        if str(r).startswith(BLACKLIST):
-            continue
-        logging.info("Publishing URL: %s" % r)
-        urlQueue.publishUrl(r)
+    payload = []
+    for k in TARGET_KEYWORDS:
+        # Prepare Payload
+        result = {
+            'type': k,
+            'data': [],
+        }
+        for term in TARGET_KEYWORDS[k]:
+            for r in search(term, num_results=20):
+                if str(r).startswith(BLACKLIST):
+                    continue
+                logging.info("Retrieveing URL: %s" % r)
+                if r not in result['data']:
+                    result['data'].append(r)
+
+        payload.append(result)
+
+    # Publish the request
+    urlQueue.publishUrl(payload)
 
     logging.info("UrlScrapper finished.")
