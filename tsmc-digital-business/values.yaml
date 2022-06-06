@@ -4,7 +4,7 @@ jobs:
       repository: alan0415/crawler-scheduler
       tag: latest
       imagePullPolicy: Always
-    schedule: "* * * * *"
+    schedule: "*/5 * * * *"
     restartPolicy: Never
     env:
     - name: TSMC_RABBITMQ_HOST
@@ -23,3 +23,12 @@ jobs:
           name: rabbitmq-account
           key: PASSWORD
           optional: false
+
+deployments:
+  - name: crawler-engine
+    replicas: 1
+    image:
+      repository: alan0415/crawler-engine
+      tag: latest
+      imagePullPolicy: Always
+    containerPort: 8088
