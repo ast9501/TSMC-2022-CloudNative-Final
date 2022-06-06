@@ -1,21 +1,22 @@
 # This script serve as an example of a urls producer.
 import os
 import sys
+import logging
+from Setting import *
 
 from googlesearch import search
 
-BLACKLIST = (
-    'https://www.google.',
-    'https://google.',
-    'https://webcache.googleusercontent.',
-    'http://webcache.googleusercontent.',
-    'https://policies.google.',
-    'https://support.google.',
-    'https://maps.google.'
-)
-
 # Create RabbitMQ Connector
 if __name__ == '__main__':
+    # Logging Configuration
+    logging.basicConfig(
+        level=logging.INFO,
+        datefmt="%d-%b-%y %H:%M:%S",
+        format="%(asctime)s [%(levelname)s]: %(message)s",
+    )
+
+    logging.info("Starting UrlScrapper...")
+
     # Modify import path
     sys.path.append(os.path.dirname(os.path.abspath(__file__))+"/../..")
     from rabbitmq.urlQueue import UrlQueue
@@ -24,7 +25,24 @@ if __name__ == '__main__':
     urlQueue = UrlQueue()
     urlQueue.setupUrlQueue()
 
-    for r in search("TSMC", num_results=20):
-        if str(r).startswith(BLACKLIST):
-            continue
-        urlQueue.publishUrl(r)
+    payload = []
+    for k in TARGET_KEYWORDS:
+        # Prepare Payload
+        result = {
+            'type': k,
+            'data': [],
+        }
+        for term in TARGET_KEYWORDS[k]:
+            for r in search(term, num_results=NUMS_OF_SEARCH_RESULT):
+                if str(r).startswith(BLACKLIST):
+                    continue
+                if r not in result['data']:
+                    logging.info("Retrieveing URL: %s" % r)
+                    result['data'].append(r)
+
+        payload.append(result)
+
+    # Publish the request
+    urlQueue.publishUrl(payload)
+
+    logging.info("UrlScrapper finished.")
