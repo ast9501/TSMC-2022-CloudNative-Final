@@ -16,21 +16,30 @@ class UrlQueue(Connector):
         q = self.channel.queue_declare(queue='')
         self.channel.queue_bind(exchange='urls', queue=q.method.queue)
 
-    def publishUrl(self, type, url):
-        payload = json.dumps({
-            'type': type,
-            'url': url,
-        })
+    def publishUrl(self, payload):
+        payload = json.dumps(payload)
         self.channel.basic_publish(exchange='urls', routing_key='', body=payload)
 
     # Callback Def
     #
-    # callback(type, url)
+    # callback(payload)
+    # payload: json string
+    # [
+    #   {
+    #       'type': 'TSMC',
+    #       'data': ["url"...]
+    #   },
+    #   {
+    #       'type': 'ASML',
+    #       'data': ["url"...]
+    #   },
+    #   ...
+    # ]
     def consumeUrl(self, callback):
         def callback_func(ch, method, properties, body):
             # Decode Json Payload
             payload = json.loads(body)
-            callback(payload.get('type'), payload.get('url'))
+            callback(payload)
 
         self.channel.basic_consume(callback_func, queue='', no_ack=True)
         self.channel.start_consuming()
