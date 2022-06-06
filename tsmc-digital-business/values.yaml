@@ -1,0 +1,25 @@
+jobs:
+  - name: crawler-scheduler
+    image:
+      repository: alan0415/crawler-scheduler
+      tag: latest
+      imagePullPolicy: Always
+    schedule: "* * * * *"
+    restartPolicy: Never
+    env:
+    - name: TSMC_RABBITMQ_HOST
+      value: "10.43.245.128"
+    - name: TSMC_RABBITMQ_PORT
+      value: "5672"
+    - name: TSMC_RABBITMQ_USER
+      valueFrom:
+        secretKeyRef:
+          name: rabbitmq-account
+          key: USER_NAME
+          optional: false
+    - name: TSMC_RABBITMQ_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: rabbitmq-account
+          key: PASSWORD
+          optional: false
