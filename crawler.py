@@ -1,5 +1,5 @@
 from flask import Flask
-from flask_restful import Api, Resource
+from flask_restful import Api, Resource, reqparse, request
 import requests
 import urllib
 import pandas as pd
@@ -15,40 +15,68 @@ import json
 app = Flask(__name__)
 api = Api(app)
 
+parser = reqparse.RequestParser()
+#parser.add_argument('type')
+#parser.add_argument('url')
+parser.add_argument("payload", type=json)
+#args = parser.parse_args()
+
+
+'''
+input data type 
+"payload" : [{"type":"TSMC", "url":["abc.com","ddd.com"]}]
+
+api usage
+use post and url:localhost:8088/crawler
+e.g curl -d '{"payload":[{"type":"TSMC", "url":["https://taipeitimes.com/News/biz/archives/2022/01/20/2003771688", "https://udn.com/news/story/7240/6367275"]},{"type":"ASML", "url":["https://taipeitimes.com/News/biz/archives/2022/01/20/2003771688", "https://udn.com/news/story/7240/6367275"]}]}' -H "Content-Type: application/json" -X POST localhost:8088/crawler
+'''
 class crawler(Resource):
     def __init__(self):
         self.crawler = GoogleCrawler()
-    def get(self):
-        results = self.get_resource_count()
+    '''
+    def get(self, company):
+        results = self.get_resource_count(company)
         #print(results[0]["link"])
         return results
-    def get_resource_count(self):
-        query = "台積電"
-        result_wordcount = 0
-        for page in range(1, 11):
-            source_data = self.crawler.google_search(query , 'qdr:w' , page);
-            for data in source_data:
-                original_text = self.get_original_text(data)
-                #print(original_text)
-                wordcount = self.crawler.word_count(original_text)
-                print(wordcount)
-                if query in wordcount:
-                    #print(wordcount[query])
-                    result_wordcount += int(wordcount[query])
-                #print(result_wordcount)
-            #result_wordcount = self.crawler.word_count(original_text)
-        #print(result_wordcount)
-        return result_wordcount
-    def get_original_text(self, data):
-        Target_URL = data["link"]
-        #print(Target_URL)
+    '''
+    def post(self):
+        json_data = request.get_json(force=True)
+        #print(json_data['payload'])
+        results = []
+        for data in json_data['payload']:
+            print(data)
+            #print(type(x))
+            results += self.get_resource_count(data)
+        print(type(results))
+        return results
+
+    def get_resource_count(self, data):
+        #query = "台積電"
+        query = data['type']
+        urls = data['url']
+        #query = company
+        print(query)
+        #result_wordcount = 0
+        all_text = ""
+        for url in urls:
+            #source_data = self.crawler.google_search(query , 'qdr:w' , page);
+            original_text = self.get_original_text(url)
+            all_text += original_text
+        word_count = self.crawler.word_count(all_text)
+        #whitelist = ['ASML', 'Intel', 'TSMC']
+        whitelist = [query]
+        result = self.crawler.get_wordcount_json(whitelist, word_count)        
+        return result
+
+
+    def get_original_text(self, link):
+        Target_URL = link
         response = self.crawler.get_source(Target_URL)
         soup = self.crawler.html_parser(response.text)
         original_text = self.crawler.html_getText(soup)
         return original_text 
 
 class GoogleCrawler():
-    
     def __init__(self):
         self.url = 'https://www.google.com/search?q='    
     #  URL 萃取 From Google Search上 , using 第三方套件
@@ -81,7 +109,6 @@ class GoogleCrawler():
             if url.startswith(google_domains):
                 links.remove(url)
         return links
-    
 # URL萃取器，有link之外，也有標題
 #     qdr:h (past hour)
 #     qdr:d (past day)
@@ -111,7 +138,6 @@ class GoogleCrawler():
             }
             output.append(item)
         return output
-    
     # 網頁解析器
     def html_parser(self,htmlText):
         soup = BeautifulSoup(htmlText, 'html.parser')
@@ -138,20 +164,28 @@ class GoogleCrawler():
     def get_wordcount_json(self,whitelist , dict_data):
         data_array = []
         for i in whitelist:
-            json_data = {
-                'Date' : 'Week1',
-                'Company' : i , 
-                'Count' : dict_data[i]
-            }
-            data_array.append(json_data)
+            if i in dict_data:
+                json_data = {
+                    'Date' : 'Week1',
+                    'Company' : i , 
+                    'Count' : dict_data[i]
+                }
+                data_array.append(json_data)
+            else:
+                json_data = {
+                    'Date' : 'Week1',
+                    'Company' : i , 
+                    'Count' : 0
+                }
+                data_array.append(json_data)
         return data_array
     def jsonarray_toexcel(self,data_array):
         df = pd.DataFrame(data=data_array)
         df.to_excel('result.xlsx' , index=False)
         return
 
+#api.add_resource(crawler, '/crawler/<string:company>')
 api.add_resource(crawler, '/crawler')
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8088, debug=True)
 
