@@ -1,0 +1,14 @@
+{{- range $deployment := .Values.deployments }}
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ $deployment.name }}-svc"
+spec:
+  selector:
+    app: {{ $deployment.name }}
+  ports:
+    - protocol: TCP
+      port: {{ $deployment.containerPort }}
+      targetPort: {{ $deployment.containerPort }}
+{{- end }}
