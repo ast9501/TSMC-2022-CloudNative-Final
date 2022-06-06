@@ -13,3 +13,7 @@ class UrlQueue(Connector):
 
     def publishUrl(self, url):
         self.channel.basic_publish(exchange='urls', routing_key='', body=url)
+
+    def consumeUrl(self, callback):
+        self.channel.basic_consume(callback, queue='', no_ack=True)
+        self.channel.start_consuming()
