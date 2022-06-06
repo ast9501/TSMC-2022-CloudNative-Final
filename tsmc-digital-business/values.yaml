@@ -23,7 +23,6 @@ jobs:
           name: rabbitmq-account
           key: PASSWORD
           optional: false
-
 deployments:
   - name: crawler-engine
     replicas: 1
