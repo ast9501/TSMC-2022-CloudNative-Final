@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from datetime import datetime
 nltk.download('stopwords')
 nltk.download('punkt')
 import json
@@ -41,6 +42,7 @@ class crawler(Resource):
     '''
     def post(self):
         json_data = request.get_json(force=True)
+        path = '/var/log/history/'
         #print(json_data['payload'])
         results = []
         for data in json_data['payload']:
@@ -48,13 +50,14 @@ class crawler(Resource):
             #print(type(x))
             results += self.get_resource_count(data)
         print(type(results))
+        self.crawler.jsonarray_toexcel(results, path) 
         return results
 
     def get_resource_count(self, data):
         #query = "台積電"
         query = data['type']
         urls = data['url']
-        path = '/var/log/history/'
+        
         #query = company
         print(query)
         #result_wordcount = 0
@@ -67,7 +70,7 @@ class crawler(Resource):
         #whitelist = ['ASML', 'Intel', 'TSMC']
         whitelist = [query]
         result = self.crawler.get_wordcount_json(whitelist, word_count) 
-        self.crawler.jsonarray_toexcel(result, path)       
+              
         return result
 
 
@@ -181,13 +184,20 @@ class GoogleCrawler():
                 }
                 data_array.append(json_data)
         return data_array
-    def jsonarray_toexcel(self,data_array):
-        flag = 0
+    def jsonarray_toexcel(self,data_array, path):
         df = pd.DataFrame(data=data_array)
-        df.to_excel('result.xlsx' , index=False)
-        print("Save to Root")
-        flag = 1
-        return flag
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        filename = path + current_time + ".xlsx"
+        print("save result as "+filename)
+        try:
+            print("Save to pvc")
+            df.to_excel(filename , index=False)
+        except:
+            print("Save Error, Change")
+            print("Save to Root")
+            df.to_excel('result.xlsx' , index=False)
+        return
 
 #api.add_resource(crawler, '/crawler/<string:company>')
 api.add_resource(crawler, '/crawler')
