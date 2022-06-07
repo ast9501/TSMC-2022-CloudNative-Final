@@ -31,7 +31,7 @@ if __name__ == '__main__':
         # Prepare Payload
         result = {
             'type': k,
-            'time': datetime.date(datetime.now()).strftime("%Y-%m-%d"),
+            'date': datetime.date(datetime.now()).strftime("%Y-%m-%d"),
             'data': [],
         }
         # Compromise: Compress Keywords

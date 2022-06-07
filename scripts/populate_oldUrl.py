@@ -14,12 +14,12 @@ import sys
 # [
 #   {
 #       'type': 'TSMC',
-#       'time': '2018-01-01',
+#       'date': '2018-01-01',
 #       'data': ["url"...]
 #   },
 #   {
 #       'type': 'ASML',
-#       'time': '2018-01-01',
+#       'date': '2018-01-01',
 #       'data': ["url"...]
 #   },
 #   ...
@@ -95,22 +95,22 @@ if __name__ == '__main__':
         payload = [
             {
                 'type': 'TSMC',
-                'time': targetDate.strftime('%Y-%m-%d'),
+                'date': targetDate.strftime('%Y-%m-%d'),
                 'data': tsmc_urls
             },
             {
                 'type': 'ASML',
-                'time': targetDate.strftime('%Y-%m-%d'),
+                'date': targetDate.strftime('%Y-%m-%d'),
                 'data': asml_urls
             },
             {
                 'type': 'Applied Materials',
-                'time': targetDate.strftime('%Y-%m-%d'),
+                'date': targetDate.strftime('%Y-%m-%d'),
                 'data': am_urls
             },
             {
                 'type': 'SUMCO',
-                'time': targetDate.strftime('%Y-%m-%d'),
+                'date': targetDate.strftime('%Y-%m-%d'),
                 'data': sumco_urls
             }
         ]
