@@ -32,7 +32,7 @@ if __name__ == '__main__':
         result = {
             'type': k,
             'date': datetime.date(datetime.now()).strftime("%m/%d"),
-            'data': [],
+            'url': [],
         }
         # Compromise: Compress Keywords
         term = " ".join(TARGET_KEYWORDS[k])
@@ -42,9 +42,9 @@ if __name__ == '__main__':
         for r in search(term, num_results=NUMS_OF_SEARCH_RESULT):
             if str(r).startswith(BLACKLIST):
                 continue
-            if r not in result['data']:
+            if r not in result['url']:
                 logging.info("Retrieveing URL: %s" % r)
-                result['data'].append(r)
+                result['url'].append(r)
 
         payload.append(result)
 

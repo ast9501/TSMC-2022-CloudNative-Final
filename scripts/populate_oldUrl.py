@@ -96,22 +96,22 @@ if __name__ == '__main__':
             {
                 'type': 'TSMC',
                 'date': targetDate.strftime('"%m/%d"'),
-                'data': tsmc_urls
+                'url': tsmc_urls
             },
             {
                 'type': 'ASML',
                 'date': targetDate.strftime('"%m/%d"'),
-                'data': asml_urls
+                'url': asml_urls
             },
             {
                 'type': 'Applied Materials',
                 'date': targetDate.strftime('"%m/%d"'),
-                'data': am_urls
+                'url': am_urls
             },
             {
                 'type': 'SUMCO',
                 'date': targetDate.strftime('"%m/%d"'),
-                'data': sumco_urls
+                'url': sumco_urls
             }
         ]
 
