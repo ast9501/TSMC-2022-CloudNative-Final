@@ -20,7 +20,7 @@ spec:
       containers:
       - name: {{ $deployment.name }}
         image: "{{ $deployment.image.repository }}:{{ $deployment.image.tag }}"
-        imagePullPolicy: {{ $deployment.image.imagePullPolicy }}
+        imagePullPolicy: {{ $deployment.image.imgagePullPolicy }}
         ports:
         - containerPort: {{ $deployment.containerPort }}
         volumeMounts:
@@ -28,6 +28,6 @@ spec:
             mountPath: {{ $deployment.pvc.path }}
       volumes:
       - name: {{ $deployment.pvc.name }}  
-        persistentVolumeClain:
+        persistentVolumeClaim:
           claimName: {{ $deployment.pvc.claimname }}  
 {{- end }}
