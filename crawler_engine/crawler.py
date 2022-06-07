@@ -10,11 +10,15 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from datetime import datetime
+#import sqlite3
+from influxdb import InfluxDBClient
 nltk.download('stopwords')
 nltk.download('punkt')
 import json
 app = Flask(__name__)
 api = Api(app)
+
+DB_path = "http://tsmc-project-influxdb.default:8086/project"
 
 parser = reqparse.RequestParser()
 #parser.add_argument('type')
@@ -50,7 +54,8 @@ class crawler(Resource):
             #print(type(x))
             results += self.get_resource_count(data)
         print(type(results))
-        self.crawler.jsonarray_toexcel(results, path) 
+        #self.crawler.jsonarray_toexcel(results, path) 
+        self.store_data(results)
         return results
 
     def get_resource_count(self, data):
@@ -80,6 +85,32 @@ class crawler(Resource):
         soup = self.crawler.html_parser(response.text)
         original_text = self.crawler.html_getText(soup)
         return original_text 
+    def store_data(self, results):
+        conn = InfluxDBClient('http://tsmc-project-influxdb.default', '8086', 'admin', 'admin', 'project')
+        
+        #conn.execute('''
+        #    CREATE TABLE IF NOT EXISTS TrendTable (
+        #        Date TEXT NOT NULL,
+        #        Company TEXT NOT NULL,
+        #        Count INT NOT NULL,
+        #        PRIMARY KEY (Date, Company)
+        #    );
+        #'''
+        #)
+        
+        for data in results:
+            info = [{
+                "measurement": "Trend",
+                "tags": {
+                    "Date" : data['Date'],
+                    "Company" : data['Company']
+                },
+                "fields": {
+                    "Count" : data['Count']
+                }                
+            }]
+            conn.write_points(info)
+
 
 class GoogleCrawler():
     def __init__(self):
