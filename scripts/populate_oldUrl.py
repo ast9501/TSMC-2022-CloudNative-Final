@@ -95,22 +95,22 @@ if __name__ == '__main__':
         payload = [
             {
                 'type': 'TSMC',
-                'date': targetDate.strftime('%Y-%m-%d'),
+                'date': targetDate.strftime('"%m/%d"'),
                 'data': tsmc_urls
             },
             {
                 'type': 'ASML',
-                'date': targetDate.strftime('%Y-%m-%d'),
+                'date': targetDate.strftime('"%m/%d"'),
                 'data': asml_urls
             },
             {
                 'type': 'Applied Materials',
-                'date': targetDate.strftime('%Y-%m-%d'),
+                'date': targetDate.strftime('"%m/%d"'),
                 'data': am_urls
             },
             {
                 'type': 'SUMCO',
-                'date': targetDate.strftime('%Y-%m-%d'),
+                'date': targetDate.strftime('"%m/%d"'),
                 'data': sumco_urls
             }
         ]
