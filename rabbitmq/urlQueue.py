@@ -41,5 +41,5 @@ class UrlQueue(Connector):
             payload = json.loads(body)
             callback(payload)
 
-        self.channel.basic_consume(callback_func, queue='', no_ack=True)
+        self.channel.basic_consume(queue='', on_message_callback=callback_func)
         self.channel.start_consuming()
