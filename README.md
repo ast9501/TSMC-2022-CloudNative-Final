@@ -2,16 +2,19 @@
 A solution for collecting Internet volume for some key words with CI/CD workflow automation.
 
 # Architecture
-(architecture figure)
-TBD
+![](https://i.imgur.com/i71m0dX.png)
 ## Components 
 ### Crawler Scheduler
 - Cronjob to generate URL
-- Send URLs to Crawler
+- Send URLs to RabbitMQ
+
+### RabbitMQ
+- Queue URLs
 
 ### Crawler
+- Consume URLs from RabbitMQ
 - Parse URL data
-- Generate result store into InfluxDB
+- Generate result and store into InfluxDB
 
 ### InfluxDB
 - Keep data from Crawler
@@ -28,8 +31,7 @@ After merge the request to master, ArgoCD will sync the application status to cl
 
 ## Tools
 Github Action use for CI workflow, run pytest and build (push) image to dockerhub.
-(figure)
-Argo CD use for install helm charts on GCP cluster.
+ArgoCD use for install helm charts on GCP cluster.
 ![](https://i.imgur.com/E61rfKD.png)
 
 # Application Present
