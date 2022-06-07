@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: rabbitmq-account
+type: Opaque
+stringData:
+  USER_NAME: "default_user_X_fMKPOAtssY3xzkukX"
+  PASSWORD: "O1OS5-U9k8GybBEvKVCR7Sa5MBZ39p2o"

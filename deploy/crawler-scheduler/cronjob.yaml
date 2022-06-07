@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: crawler-scheduler
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+          - name: crawler-scheduler
+            image: alan0415/crawler-scheduler
+            env:
+            - name: TSMC_RABBITMQ_HOST
+              value: "10.40.4.94"
+            - name: TSMC_RABBITMQ_PORT
+              value: "5672"
+            - name: TSMC_RABBITMQ_USER
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-account
+                  key: USER_NAME
+                  optional: false
+            - name: TSMC_RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: rabbitmq-account
+                  key: PASSWORD
+                  optional: false

@@ -1,0 +1,33 @@
+{{- $release_name := .Release.Name }}
+
+{{- range $deployment := .Values.deployments }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ $release_name }}-{{ $deployment.name }}"
+  labels:
+    app: {{ $deployment.name }}
+spec:
+  replicas: {{ $deployment.replicas }}
+  selector:
+    matchLabels:
+      app: {{ $deployment.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $deployment.name }}
+    spec:
+      containers:
+      - name: {{ $deployment.name }}
+        image: "{{ $deployment.image.repository }}:{{ $deployment.image.tag }}"
+        imagePullPolicy: {{ $deployment.image.imagePullPolicy }}
+        ports:
+        - containerPort: {{ $deployment.containerPort }}
+        volumeMounts:
+          - name: {{ $deployment.pvc.name }}
+            mountPath: {{ $deployment.pvc.path }}
+      volumes:
+      - name: {{ $deployment.pvc.name }}  
+        persistentVolumeClain:
+          claimName: {{ $deployment.pvc.claimname }}  
+{{- end }}
