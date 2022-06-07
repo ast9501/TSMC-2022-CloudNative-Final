@@ -27,12 +27,10 @@ class UrlQueue(Connector):
     # [
     #   {
     #       'type': 'TSMC',
-    #       'date': '2018-01-01',
     #       'data': ["url"...]
     #   },
     #   {
     #       'type': 'ASML',
-    #       'date': '2018-01-01',
     #       'data': ["url"...]
     #   },
     #   ...

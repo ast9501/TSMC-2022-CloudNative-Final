@@ -2,7 +2,6 @@
 import os
 import sys
 import logging
-from datetime import datetime
 from Setting import *
 
 from googlesearch import search
@@ -31,20 +30,15 @@ if __name__ == '__main__':
         # Prepare Payload
         result = {
             'type': k,
-            'date': datetime.date(datetime.now()).strftime("%m/%d"),
-            'url': [],
+            'data': [],
         }
-        # Compromise: Compress Keywords
-        term = " ".join(TARGET_KEYWORDS[k])
-
-        logging.info("Searching for %s..." % term)
-
-        for r in search(term, num_results=NUMS_OF_SEARCH_RESULT):
-            if str(r).startswith(BLACKLIST):
-                continue
-            if r not in result['url']:
-                logging.info("Retrieveing URL: %s" % r)
-                result['url'].append(r)
+        for term in TARGET_KEYWORDS[k]:
+            for r in search(term, num_results=NUMS_OF_SEARCH_RESULT):
+                if str(r).startswith(BLACKLIST):
+                    continue
+                if r not in result['data']:
+                    logging.info("Retrieveing URL: %s" % r)
+                    result['data'].append(r)
 
         payload.append(result)
 

@@ -6,4 +6,3 @@ nltk
 openpyxl
 flask
 flask_restful
-influxdb
