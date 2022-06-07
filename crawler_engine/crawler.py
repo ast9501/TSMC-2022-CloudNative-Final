@@ -9,11 +9,16 @@ from bs4 import BeautifulSoup
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from datetime import datetime
+#import sqlite3
+from influxdb import InfluxDBClient
 nltk.download('stopwords')
 nltk.download('punkt')
 import json
 app = Flask(__name__)
 api = Api(app)
+
+DB_path = "http://tsmc-project-influxdb.default:8086/project"
 
 parser = reqparse.RequestParser()
 #parser.add_argument('type')
@@ -41,6 +46,7 @@ class crawler(Resource):
     '''
     def post(self):
         json_data = request.get_json(force=True)
+        path = '/var/log/history/'
         #print(json_data['payload'])
         results = []
         for data in json_data['payload']:
@@ -48,13 +54,14 @@ class crawler(Resource):
             #print(type(x))
             results += self.get_resource_count(data)
         print(type(results))
+        flag = self.crawler.jsonarray_toexcel(results, path) 
         return results
 
     def get_resource_count(self, data):
         #query = "台積電"
         query = data['type']
         urls = data['url']
-        path = '/var/log/history/'
+        date = data['date']
         #query = company
         print(query)
         #result_wordcount = 0
@@ -66,8 +73,8 @@ class crawler(Resource):
         word_count = self.crawler.word_count(all_text)
         #whitelist = ['ASML', 'Intel', 'TSMC']
         whitelist = [query]
-        result = self.crawler.get_wordcount_json(whitelist, word_count) 
-        self.crawler.jsonarray_toexcel(result, path)       
+        result = self.crawler.get_wordcount_json(whitelist, word_count, date) 
+              
         return result
 
 
@@ -77,6 +84,33 @@ class crawler(Resource):
         soup = self.crawler.html_parser(response.text)
         original_text = self.crawler.html_getText(soup)
         return original_text 
+    def store_data(self, results):
+        conn = InfluxDBClient('tsmc-project-influxdb.default', '8086', '', '', 'project')
+        #conn = InfluxDBClient('localhost', '8086', 'admin', 'admin')
+
+        #conn.execute('''
+        #    CREATE TABLE IF NOT EXISTS TrendTable (
+        #        Date TEXT NOT NULL,
+        #        Company TEXT NOT NULL,
+        #        Count INT NOT NULL,
+        #        PRIMARY KEY (Date, Company)
+        #    );
+        #'''
+        #)
+        #conn.create_database('project')
+        for data in results:
+            info = [{
+                "measurement": "Trend",
+                "tags": {
+                    "Date" : data['Date'],
+                    "Company" : data['Company']
+                },
+                "fields": {
+                    "Count" : data['Count']
+                }                
+            }]
+            conn.write_points(info)
+
 
 class GoogleCrawler():
     def __init__(self):
@@ -163,30 +197,40 @@ class GoogleCrawler():
                 else:
                     counts[word] = 1
         return counts
-    def get_wordcount_json(self,whitelist , dict_data):
+    def get_wordcount_json(self,whitelist , dict_data, date):
         data_array = []
         for i in whitelist:
             if i in dict_data:
                 json_data = {
-                    'Date' : 'Week1',
+                    'Date' : date,
                     'Company' : i , 
                     'Count' : dict_data[i]
                 }
                 data_array.append(json_data)
             else:
                 json_data = {
-                    'Date' : 'Week1',
+                    'Date' : date,
                     'Company' : i , 
                     'Count' : 0
                 }
                 data_array.append(json_data)
         return data_array
-    def jsonarray_toexcel(self,data_array):
+    def jsonarray_toexcel(self,data_array, path):
         flag = 0
         df = pd.DataFrame(data=data_array)
-        df.to_excel('result.xlsx' , index=False)
-        print("Save to Root")
-        flag = 1
+        now = datetime.now()
+        current_time = now.strftime("%H:%M:%S")
+        filename = path + current_time + ".xlsx"
+        print("save result as "+filename)
+        try:
+            flag = 1
+            print("Save to pvc")
+            df.to_excel(filename , index=False)
+        except:
+            flag = 2
+            print("Save Error, Change")
+            print("Save to Root")
+            df.to_excel('result.xlsx' , index=False)
         return flag
 
 #api.add_resource(crawler, '/crawler/<string:company>')

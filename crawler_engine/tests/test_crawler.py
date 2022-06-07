@@ -73,7 +73,8 @@ def test_jsonarray_toexcel():
     result_wordcount = crawler_loc.word_count(orignal_text)
     whitelist = ['Ukraine' , 'Russia']
     end_result = crawler_loc.get_wordcount_json(whitelist , result_wordcount)
-    c_flag = crawler_loc.jsonarray_toexcel(end_result)
+    path = '/var/log/history/'
+    c_flag = crawler_loc.jsonarray_toexcel(end_result, path)
     assert c_flag != 0
 
 def test_get_original_text():
