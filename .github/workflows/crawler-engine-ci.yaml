@@ -29,9 +29,9 @@ jobs:
       matrix:
         python-version: ["3.6"]
     steps:
-      - name: debug
+      - name: echo short commit sha
         run: |
-          echo ${{ GITHUB_SHA }}
+          echo ${GITHUB_SHA::8}
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
@@ -69,7 +69,7 @@ jobs:
           context: ./${{ env.CRAWLER_ENGINE_BASE_PATH }}
           file: ./${{ env.CRAWLER_ENGINE_BASE_PATH }}/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:${{ GITHUB_SHA }} #$(git rev-parse --short "$GITHUB_SHA")
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:${GITHUB_SHA::8} #$(git rev-parse --short "$GITHUB_SHA")
   commit-image-tag:
     needs: crawler-build
     runs-on: ubuntu-latest
@@ -79,7 +79,7 @@ jobs:
 
       - name: Modifiy the specific files using scripts
         run: |
-          sed -i '5c\      tag: "${{ GITHUB_SHA }}"' tsmc-digital-business/values.yaml
+          sed -i '5c\      tag: "${GITHUB_SHA::8}"' tsmc-digital-business/values.yaml
 
       - name: Commit changes
         run: |
@@ -89,7 +89,7 @@ jobs:
           git add tsmc-digital-business/values.yaml
           git commit -m "commit new image tag"
       - name: push
-          uses: ad-m/github-push-action@master
-          with:
-            github_token: ${{ secrets.GITHUB_TOKEN }}
-            branch: ${{ github.ref }}
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
