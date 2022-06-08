@@ -22,7 +22,7 @@ env:
   # Define path for projects
   CRAWLER_ENGINE_BASE_PATH: "crawler_engine"
   CONTAINER_NAME: crawler-engine
-  #SHA8: ${GITHUB_SHA::8}
+  SHA8: ${GITHUB_SHA::8}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: echo short commit sha
         run: |
-          echo "SHA8=${GITHUB_SHA::8}" >> $GITHUB_ENV
+          echo $SHA8
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
