@@ -80,8 +80,7 @@ jobs:
 
       - name: update repo
         run: |
-          git pull origin dev
-          git pull origin master
+          git pull origin ${{ github.ref }}
 
       - name: Modifiy the specific files using scripts
         run: |

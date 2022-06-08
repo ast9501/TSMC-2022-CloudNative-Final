@@ -51,9 +51,8 @@ jobs:
 
       - name: update repo
         run: |
-          git pull origin dev
-          git pull origin master
-          
+          git pull origin ${{ github.ref }}
+
       - name: Modifiy the specific files using scripts
         run: |
           sed -i '5c\      tag: ${{ github.sha }}' tsmc-digital-business/values.yaml
