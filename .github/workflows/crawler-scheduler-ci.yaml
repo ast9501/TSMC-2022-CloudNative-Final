@@ -49,6 +49,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2.3.2
 
+      - name: update repo
+        run: |
+          git pull origin dev
+          git pull origin master
+          
       - name: Modifiy the specific files using scripts
         run: |
           sed -i '5c\      tag: ${{ github.sha }}' tsmc-digital-business/values.yaml
