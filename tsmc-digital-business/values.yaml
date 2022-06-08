@@ -2,7 +2,7 @@ jobs:
   - name: crawler-scheduler
     image:
       repository: alan0415/crawler-scheduler
-      tag: 1289431b37918bb381b941f03597ccdadcfc0f13
+      tag: b5c40f09686a2e8761b736d78e06c49d1086db20
       imagePullPolicy: Always
     schedule: "*/5 * * * *"
     restartPolicy: Never
