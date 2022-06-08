@@ -80,7 +80,7 @@ jobs:
 
       - name: Modifiy the specific files using scripts
         run: |
-          sed -i '5c\      tag: "${{ github.sha }}"' tsmc-digital-business/values.yaml
+          sed -i '31c\      tag: ${{ github.sha }}' tsmc-digital-business/values.yaml
 
       - name: Commit changes
         run: |
