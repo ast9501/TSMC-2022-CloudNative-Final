@@ -22,7 +22,7 @@ env:
   # Define path for projects
   CRAWLER_ENGINE_BASE_PATH: "crawler_engine"
   CONTAINER_NAME: crawler-engine
-  SHA8: ${GITHUB_SHA::8}
+  #SHA8: ${GITHUB_SHA::8}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: echo short commit sha
         run: |
-          echo ${GITHUB_SHA::8}
+          echo "SHA8=${GITHUB_SHA::8}" >> $GITHUB_ENV
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
@@ -70,7 +70,7 @@ jobs:
           context: ./${{ env.CRAWLER_ENGINE_BASE_PATH }}
           file: ./${{ env.CRAWLER_ENGINE_BASE_PATH }}/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:$SHA8 #$(git rev-parse --short "$GITHUB_SHA")
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:${{ env.SHA8 }} #$(git rev-parse --short "$GITHUB_SHA")
   commit-image-tag:
     needs: crawler-build
     runs-on: ubuntu-latest
@@ -80,7 +80,7 @@ jobs:
 
       - name: Modifiy the specific files using scripts
         run: |
-          sed -i '5c\      tag: "$SHA8"' tsmc-digital-business/values.yaml
+          sed -i '5c\      tag: "${{ env.SHA8 }}"' tsmc-digital-business/values.yaml
 
       - name: Commit changes
         run: |
