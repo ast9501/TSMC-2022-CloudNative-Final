@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: debug
         run: |
-          echo ${{ env.GITHUB_SHA }}
+          echo ${{ GITHUB_SHA }}
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
@@ -69,7 +69,7 @@ jobs:
           context: ./${{ env.CRAWLER_ENGINE_BASE_PATH }}
           file: ./${{ env.CRAWLER_ENGINE_BASE_PATH }}/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:${{ env.GITHUB_SHA }} #$(git rev-parse --short "$GITHUB_SHA")
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.CONTAINER_NAME }}:${{ GITHUB_SHA }} #$(git rev-parse --short "$GITHUB_SHA")
   commit-image-tag:
     needs: crawler-build
     runs-on: ubuntu-latest
@@ -79,13 +79,17 @@ jobs:
 
       - name: Modifiy the specific files using scripts
         run: |
-          sed -i '5c\      tag: "${{ env.GITHUB_SHA }}"' tsmc-digital-business/values.yaml
+          sed -i '5c\      tag: "${{ GITHUB_SHA }}"' tsmc-digital-business/values.yaml
 
-      - name: Commit and push changes
+      - name: Commit changes
         run: |
           git config --global user.name "Github Action"
           git config --global user.email "github.action@git"
 
           git add tsmc-digital-business/values.yaml
           git commit -m "commit new image tag"
-          git push origin dev
+      - name: push
+          uses: ad-m/github-push-action@master
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: ${{ github.ref }}
