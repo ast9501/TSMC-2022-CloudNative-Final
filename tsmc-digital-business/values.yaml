@@ -28,7 +28,7 @@ deployments:
     replicas: 1
     image:
       repository: alan0415/crawler-engine
-      tag: latest
+      tag: 43392b15ab74d98145d13e4e9348d8aef2cb2188
       imagePullPolicy: Always
     containerPort: 8088
     pvc:
